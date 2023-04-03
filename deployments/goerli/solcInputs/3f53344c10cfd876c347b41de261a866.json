@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/Certificate.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\n\r\npragma solidity ^0.8.0;\r\n\r\ncontract Certificate {\r\n    struct Cert {\r\n        string cert_name;\r\n        string cert_type;\r\n        string org_address;\r\n    }\r\n\r\n    struct Cert_Ins {\r\n        string cert_name;\r\n        string cert_type;\r\n        string stu_address;\r\n    }\r\n\r\n    struct User {\r\n        string name;\r\n        string role;\r\n    }\r\n\r\n    mapping(string => User) public users;\r\n    mapping(string => Cert[]) public certs;\r\n    mapping(string => Cert_Ins[]) public cert_ins;\r\n\r\n    function doesUserExists(string memory account) public view returns (bool) {\r\n        if (\r\n            keccak256(abi.encodePacked(users[account].name)) ==\r\n            keccak256(abi.encodePacked(\"\"))\r\n        ) return false;\r\n        return true;\r\n    }\r\n\r\n    function addUser(\r\n        string memory account,\r\n        string memory name,\r\n        string memory role\r\n    ) public returns (bool) {\r\n        if (!doesUserExists(account)) {\r\n            users[account] = User(name, role);\r\n            return true;\r\n        } else {\r\n            return false;\r\n        }\r\n    }\r\n\r\n    function getUser(\r\n        string memory account\r\n    ) public view returns (string memory, string memory) {\r\n        User memory user = users[account];\r\n        return (user.name, user.role);\r\n    }\r\n\r\n    function generateCertificate(\r\n        string memory org_account,\r\n        string memory stu_account,\r\n        string memory cert_name,\r\n        string memory cert_type\r\n    ) public returns (bool) {\r\n        certs[stu_account].push(Cert(cert_name, cert_type, org_account));\r\n        cert_ins[org_account].push(Cert_Ins(cert_name, cert_type, stu_account));\r\n        return true;\r\n    }\r\n\r\n    function getCertificates(\r\n        string memory org_account,\r\n        string memory stu_account\r\n    )\r\n        public\r\n        view\r\n        returns (\r\n            bool,\r\n            string memory,\r\n            string memory,\r\n            string memory,\r\n            string memory\r\n        )\r\n    {\r\n        Cert[] memory c;\r\n        c = certs[stu_account];\r\n        for (uint256 i = 0; i < c.length; i++) {\r\n            if (\r\n                keccak256(abi.encodePacked(c[i].org_address)) ==\r\n                keccak256(abi.encodePacked(org_account))\r\n            )\r\n                return (\r\n                    true,\r\n                    org_account,\r\n                    stu_account,\r\n                    c[i].cert_name,\r\n                    c[i].cert_type\r\n                );\r\n        }\r\n        return (true, org_account, stu_account, \"\", \"\");\r\n    }\r\n\r\n    function getCertificates_Organisation(\r\n        string memory org_account\r\n    ) public view returns (Cert_Ins[] memory) {\r\n        return cert_ins[org_account];\r\n    }\r\n}\r\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
